@@ -1,0 +1,165 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+#
+#
+#
+
+use LWP::UserAgent;
+use Getopt::Long 2.33 qw(:config gnu_getopt no_auto_abbrev);
+use Pod::Usage;
+use JSON;
+
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Quotekeys = 0;
+
+sub argparser {
+    my $option = {
+        hostname => "192.168.1.1",
+    };
+    my @option_list = (
+        "hostname|h=s",
+        "username|u=s",
+        "password|p=s",
+    );
+
+    GetOptions($option,@option_list,'man','help|?') or pod2usage(2);
+    if ($option->{help} && @option_list) {
+        print("List of options:\n");
+        print("\t");
+        print join(",", @option_list);
+        print("\n");
+        exit(0);
+    }
+    pod2usage(-exitstatus => 0, -verbose => 2) if $option->{man};
+
+    return $option;
+}
+
+sub jsonrpc_call {
+    my $ua = shift;
+    my $hostname = shift;
+    my $token = shift;
+    my $object = shift;
+    my $method = shift;
+    my %params = @_;
+
+    my $url = 'http://' . $hostname . '/ubus';
+
+    # See https://openwrt.org/docs/techref/ubus Session management
+    # for some docs
+
+    my $id = 1; # FIXME
+
+    my $data = {
+        jsonrpc => '2.0',
+        id => $id,
+        method => 'call',
+        params => [
+            $token,
+            $object,
+            $method,
+            \%params,
+        ],
+    };
+
+    my $req = HTTP::Request->new(POST => $url);
+    $req->content_type('application/x-www-form-urlencoded');
+    $req->content(encode_json($data));
+
+    my $res = $ua->request($req);
+
+    if (!$res->is_success()) {
+        # We should always get a result
+        die("Error with jsonrpc");
+    }
+
+    my $result = decode_json($res->content());
+
+    if ($result->{id} != $id) {
+        die("Mismatched result id $result->{id} != $id");
+    }
+
+    if ($result->{jsonrpc} ne '2.0') {
+        die("Unknown jsonrpc version $result->{jsonrpc}");
+    }
+
+    if (!defined($result->{result})) {
+        die("No result ", Dumper($result));
+    }
+
+    return $result->{result};
+}
+
+sub login {
+    my $ua = shift;
+    my $hostname = shift;
+    my $username = shift;
+    my $password = shift;
+ 
+    my $result = jsonrpc_call(
+        $ua, $hostname,
+        '00000000000000000000000000000000',
+        'session', 'login',
+        username => $username,
+        password => $password,
+    );
+
+    if ($result->[0] != 0) {
+       die("Could not login");
+    }
+
+    return $result->[1]{ubus_rpc_session};
+}
+
+sub fetch_DSLStatus {
+    my $ua = shift;
+    my $hostname = shift;
+    my $session = shift;
+
+    my $result = jsonrpc_call(
+        $ua, $hostname,
+        $session,
+        'luci-rpc', 'getDSLStatus'
+    );
+}
+
+sub render_fetch {
+    ...
+}
+
+sub main {
+    my $option = argparser();
+
+    if (($ARGV[0]||'') eq 'suggest') {
+        ...
+        # TODO:
+        # - check if there is a 192.168.1.254 port 80 on the network?
+    }
+    if (($ARGV[0]||'') eq 'config') {
+        ...;
+        return;
+    }
+
+    my $ua = LWP::UserAgent->new();
+    # TODO: ua->agent()
+
+    my $session = login(
+        $ua,
+        $option->{hostname},
+        $option->{username}, $option->{password}
+    );
+    my $db = fetch_DSLStatus($ua, $option->{hostname}, $session);
+
+    if (($ARGV[0]||'') eq 'debug') {
+        print(Dumper($db));
+        return;
+    }
+
+    render_fetch($db);
+}
+unless(caller) {
+    main();
+}
