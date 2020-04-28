@@ -9,6 +9,7 @@ use LWP::UserAgent;
 use Getopt::Long 2.33 qw(:config gnu_getopt no_auto_abbrev);
 use Pod::Usage;
 use JSON;
+use IO::File;
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
@@ -139,6 +140,89 @@ sub fetch_DSLStatus {
     return $result->[1];
 }
 
+sub render_log {
+    my $db = shift;
+    my $filename = shift;
+
+    $db->{timestamp} = time();
+
+    my @fields = qw(
+        timestamp
+        line_uptime
+        data_rate_down
+        data_rate_up
+        max_data_rate_down
+        max_data_rate_up
+        latency_down
+        latency_up
+        line_attenuation_down
+        line_attenuation_up
+        signal_attenuation_down
+        signal_attenuation_up
+        noise_margin_down
+        noise_margin_up
+        actatp_down
+        actatp_up
+        errors_fecs_far
+        errors_fecs_near
+        errors_es_far
+        errors_es_near
+        errors_ses_far
+        errors_ses_near
+        errors_loss_far
+        errors_loss_near
+        errors_uas_far
+        errors_uas_near
+        errors_hec_far
+        errors_hec_near
+        errors_crc_p_far
+        errors_crc_p_near
+        errors_crcp_p_far
+        errors_crcp_p_near
+        annex_s
+        line_state_num
+        power_mode_num
+        atuc_system_vendor_id
+        api_version
+        firmware_version
+        xtse1
+        xtse2
+        xtse3
+        xtse4
+        xtse5
+        xtse6
+        xtse7
+        xtse8
+    );
+
+    my $fh;
+    if ( ! -e $filename ) {
+        $fh = IO::File->new($filename, "w");
+
+        my $col = 1;
+        for my $field (@fields) {
+            $fh->print(sprintf("#column %i %s\n",
+                $col++,
+                $field,
+            ));
+        }
+        $fh->print("\n");
+        $fh->print("#", join(" ",@fields), "\n");
+    } else {
+        $fh = IO::File->new($filename, "a");
+    }
+
+    my @values;
+    for my $field (@fields) {
+        my $value = $db->{$field};
+        if (!defined($value)) {
+            $value = '\n';
+        }
+        push @values, $value;
+    }
+    $fh->print(join(" ", @values), "\n");
+}
+
 sub render_fetch {
     ...
 }
@@ -169,6 +253,11 @@ sub main {
 
     if ($cmd eq 'debug') {
         print(Dumper($db));
+        return;
+    }
+
+    if ($cmd eq 'log') {
+        render_log($db, $ARGV[1]);
         return;
     }
 
