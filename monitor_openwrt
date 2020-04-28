@@ -124,6 +124,12 @@ sub fetch_DSLStatus {
         $session,
         'luci-rpc', 'getDSLStatus'
     );
+
+    if ($result->[0] != 0) {
+       die("Could not fetch");
+    }
+
+    return $result->[1];
 }
 
 sub render_fetch {
