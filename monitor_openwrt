@@ -24,6 +24,7 @@ sub argparser {
         "hostname|h=s",
         "username|u=s",
         "password|p=s",
+        "debug",
     );
 
     GetOptions($option,@option_list,'man','help|?') or pod2usage(2);
@@ -251,9 +252,8 @@ sub main {
     );
     my $db = fetch_DSLStatus($ua, $option->{hostname}, $session);
 
-    if ($cmd eq 'debug') {
+    if ($option->{debug}) {
         print(Dumper($db));
-        return;
     }
 
     if ($cmd eq 'log') {
