@@ -114,6 +114,13 @@ sub login {
     return $result->[1]{ubus_rpc_session};
 }
 
+# TODO:
+# - this information could also be fetched via ssh
+#   /etc/init.d/dsl_control lucistat
+#   or
+#   /etc/init.d/dsl_control status
+#   (depending on which openwrt version)
+
 sub fetch_DSLStatus {
     my $ua = shift;
     my $hostname = shift;
