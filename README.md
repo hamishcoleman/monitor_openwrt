@@ -10,8 +10,9 @@ Example Usage:
     ./monitor_openwrt --username=root --password=hunter9 log $logfile
 
 Flags:
-    --hostname -h   Set the host to connect to, defaults to 192.168.1.1
-    --username -u   Username to login as, defaults to 'root'
-    --password -p   Password to use
-    --debug         Various debug output (mostly just dumping the whole
-                    recieved data structure)
+<dl>
+ <dt>--hostname -h</dt> <dd>The host to connect to, defaults to 192.168.1.1</dd>
+ <dt>--username -u<dt>  <dd>Username to login as, defaults to 'root'</dd>
+ <dt>--password -p<dt>  <dd>Password to use - required</dd>
+ <dt>--debug<dt>        <dd>Various debug output (mostly just dumping the whole recieved data structure)</dd>
+</dl>
