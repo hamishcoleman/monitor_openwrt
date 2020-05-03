@@ -142,7 +142,7 @@ sub fetch_DSLStatus {
     return $result->[1];
 }
 
-sub render_log {
+sub render_DSLlog {
     my $db = shift;
     my $filename = shift;
 
@@ -258,7 +258,7 @@ sub main {
     }
 
     if ($cmd eq 'log') {
-        render_log($db, $ARGV[1]);
+        render_DSLlog($db, $ARGV[1]);
         return;
     }
 
