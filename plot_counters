@@ -1,0 +1,51 @@
+#!/usr/bin/gnuplot -c
+#
+# Many of the values tracked are counters that just increase over time
+# this plots all these counters on the one plot.  Some panning and zooming
+# will generally be required as not all the metrics will fit on the same
+# scale.
+
+# Originally used this shortcut:
+# gnuplot-time 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 ARG1
+
+set timestamp 'generated at %F %T'
+set title 'All error seconds values'
+set xlabel 'Time (GMT)'
+set ylabel 'seconds'
+
+#set xtics out rotate by -15 86400
+set xtics out rotate by -15
+#set mouse clipboardformat 5
+set grid ytics mytics lw 2, lw 1
+set grid xtics
+set autoscale fix
+
+set key left top Left title 'Legend' box 3
+
+set timefmt '%s'
+set xdata time
+set format x '%Y-%m-%d %H:%M'
+set mouse mouseformat 5
+set style data lines
+
+# Could also plot column 2, which is the DSL uptime
+
+plot \
+    ARG1 using 1:17  title 'errors_fecs_far',\
+    ARG1 using 1:18  title 'errors_fecs_near',\
+    ARG1 using 1:19  title 'errors_es_far',\
+    ARG1 using 1:20  title 'errors_es_near',\
+    ARG1 using 1:21  title 'errors_ses_far',\
+    ARG1 using 1:22  title 'errors_ses_near',\
+    ARG1 using 1:23  title 'errors_loss_far',\
+    ARG1 using 1:24  title 'errors_loss_near',\
+    ARG1 using 1:25  title 'errors_uas_far',\
+    ARG1 using 1:26  title 'errors_uas_near',\
+    ARG1 using 1:27  title 'errors_hec_far',\
+    ARG1 using 1:28  title 'errors_hec_near',\
+    ARG1 using 1:29  title 'errors_crc_p_far',\
+    ARG1 using 1:30  title 'errors_crc_p_near',\
+    ARG1 using 1:31  title 'errors_crcp_p_far',\
+    ARG1 using 1:32  title 'errors_crcp_p_near'
+pause mouse close
+
