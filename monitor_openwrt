@@ -101,6 +101,10 @@ sub login {
     my $hostname = shift;
     my $username = shift;
     my $password = shift;
+
+    if (!defined($password)) {
+        die("No password provided");
+    }
  
     my $result = jsonrpc_call(
         $ua, $hostname,
