@@ -13,7 +13,7 @@
 #    ARG1
 
 set timestamp 'generated at %F %T'
-set title 'All error seconds values'
+set title 'All instantaneous value metrics'
 set xlabel 'Time (GMT)'
 set ylabel 'Value'
 
