@@ -1,0 +1,36 @@
+#!/usr/bin/gnuplot -c
+#
+# This plots all the instantanous value metrics that are measured in
+# dB
+
+set timestamp 'generated at %F %T'
+set title 'All line dB metrics'
+set xlabel 'Time (GMT)'
+set ylabel 'dB'
+
+#set xtics out rotate by -15 86400
+set xtics out rotate by -15
+#set mouse clipboardformat 5
+set grid ytics mytics lw 2, lw 1
+set grid xtics
+set autoscale fix
+
+set key left top Left title 'Legend' box 3
+
+set timefmt '%s'
+set xdata time
+set format x '%Y-%m-%d %H:%M'
+set mouse mouseformat 5
+set style data lines
+
+plot \
+    ARG1 using 1:9  title 'line_attenuation_down',\
+    ARG1 using 1:10  title 'line_attenuation_up',\
+    ARG1 using 1:11  title 'signal_attenuation_down',\
+    ARG1 using 1:12  title 'signal_attenuation_up',\
+    ARG1 using 1:13  title 'noise_margin_down',\
+    ARG1 using 1:14  title 'noise_margin_up',\
+    ARG1 using 1:15  title 'actatp_down',\
+    ARG1 using 1:16  title 'actatp_up'
+pause mouse close
+
